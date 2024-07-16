@@ -14,50 +14,33 @@ client.on("ready", (c) => {
   console.log(`✅ ${c.user.tag} is online`);
 });
 
-client.on("interactionCreate", (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+client.on("interactionCreate", async (interaction) => {
+  try {
+    if (!interaction.isButton()) return;
 
-  if (interaction.commandName === "embed") {
-    const embed = new EmbedBuilder()
-      .setTitle("Embed title")
-      .setDescription("This is an embed description")
-      .setColor("Random")
-      .addFields(
-        {
-          name: "Field title",
-          value: "Some random value",
-          inline: true,
-        },
-        {
-          name: "2nd Field title",
-          value: "Some random value",
-          inline: true,
-        },
-      );
-    interaction.reply({ embeds: [embed] });
-  }
-});
+    const role = interaction.guild.roles.cache.get(interaction.customId);
 
-client.on("messageCreate", (msg) => {
-  if (msg.content === "embed") {
-    const embed = new EmbedBuilder()
-      .setTitle("Embed title")
-      .setDescription("This is an embed description")
-      .setColor("Random")
-      .addFields(
-        {
-          name: "Field title",
-          value: "Some random value",
-          inline: true,
-        },
-        {
-          name: "2nd Field title",
-          value: "Some random value",
-          inline: true,
-        },
-      );
+    await interaction.deferReply();
 
-    msg.channel.send({ embeds: [embed] });
+    if (!role) {
+      interaction.editReply({
+        content: "I couldn't find that role",
+      });
+      return;
+    }
+
+    const hasRole = interaction.member.roles.cache.has(role.id);
+
+    if (hasRole) {
+      await interaction.member.roles.remove(role);
+      await interaction.editReply(`The role ${role} has been removed.`);
+      return;
+    }
+
+    await interaction.member.roles.add(role);
+    await interaction.editReply(`The role ${role} has been added.`);
+  } catch (error) {
+    console.log(error);
   }
 });
 
