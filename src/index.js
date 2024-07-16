@@ -1,5 +1,5 @@
 const { Client, IntentsBitField } = require("discord.js");
-const config = require("../config.json");
+require("dotenv").config();
 
 const client = new Client({
   intents: [
@@ -10,4 +10,8 @@ const client = new Client({
   ],
 });
 
-client.login(config.token);
+client.on("ready", (c) => {
+  console.log(`✅ ${c.user.tag} is online`);
+});
+
+client.login(process.env.TOKEN);
