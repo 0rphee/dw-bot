@@ -1,4 +1,4 @@
-const { Client, IntentsBitField, EmbedBuilder } = require("discord.js");
+const { Client, IntentsBitField, ActivityType } = require("discord.js");
 require("dotenv").config();
 
 const client = new Client({
@@ -10,38 +10,32 @@ const client = new Client({
   ],
 });
 
+let status = [
+  {
+    name: "Under Ctrl",
+    type: ActivityType.Streaming,
+    url: "https://www.youtube.com/watch?v=OqxHy8sCtvA&list=PLpmb-7WxPhe0ZVpH9pxT5MtC4heqej8Es&index=6",
+  },
+  {
+    name: "Custom Status 1",
+  },
+  {
+    name: "Custom Status 2",
+    type: ActivityType.Watching,
+  },
+  {
+    name: "Custom Status 3",
+    type: ActivityType.Listening,
+  },
+];
+
 client.on("ready", (c) => {
   console.log(`✅ ${c.user.tag} is online`);
-});
 
-client.on("interactionCreate", async (interaction) => {
-  try {
-    if (!interaction.isButton()) return;
-
-    const role = interaction.guild.roles.cache.get(interaction.customId);
-
-    await interaction.deferReply();
-
-    if (!role) {
-      interaction.editReply({
-        content: "I couldn't find that role",
-      });
-      return;
-    }
-
-    const hasRole = interaction.member.roles.cache.has(role.id);
-
-    if (hasRole) {
-      await interaction.member.roles.remove(role);
-      await interaction.editReply(`The role ${role} has been removed.`);
-      return;
-    }
-
-    await interaction.member.roles.add(role);
-    await interaction.editReply(`The role ${role} has been added.`);
-  } catch (error) {
-    console.log(error);
-  }
+  setInterval(() => {
+    let random = Math.floor(Math.random() * status.length);
+    client.user.setActivity(status[random]);
+  }, 10000);
 });
 
 client.login(process.env.TOKEN);
